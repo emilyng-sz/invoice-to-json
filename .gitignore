@@ -1,0 +1,4 @@
+data*
+venv*
+config.yml
+config.env
