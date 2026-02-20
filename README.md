@@ -1,20 +1,21 @@
-# Invoice to json
+# Invoice to JSON Pipeline
 
-## About this repository
-- Converts multi-page invoice PDF to image format
-- Each image is input to an LLM with a prompt to output a raw json dump
-- Intermediate function cleans and combines the multipage json output with Python logic
-- Final output is a parsed json file
-- Note: the prompt is tailored to the project's specific downstream use case. This repository is not a one-size fits all invoice parser. Further customisations may be necessary for your use case.
+This repository contains code that converts an invoice PDF to images and returns two JSON files: the first file containing raw data, and the latter with parsed formats using Python logic.
 
-## Prerequisites
-1. Initialise and activate python venv
-```
-python -m venv venv
-source venv/bin/activate
-```
-2. Download required libraries from `requirements.txt`: `pip install -r requirements.txt`
-3. Ensure `config.yml` and `config.env` file is in place with the sample keys below:
+**Note:** the code is tailored to the project's specific use case and downstream processing (excluded in this repository). This pipeline is therefore NOT a one-size-fits-all invoice parser. Further customisations may be necessary for your use case.
+
+## Core Functions and Processes:
+- `invoice_to_json`: 
+    - Converts invoice in PDF format to JSON. 
+    - For input pdf named "invoice_abc.pdf", each page will first be converted to an image, which is saved in `LOCAL_IMG_DEST_DIR` folder (specified in `config.yml`). These images will be named "invoice_abc_i_of_X.png" for range(1, X+1) of a X-paged pdf.
+    - A process will encode each image and return a parsed JSON using OpenAI LLM. 
+    - All image JSONs are compiled into one JSON file and saved as "invoice_abc_X_of_X.json"
+
+- `parse_pdf_json` takes in a compiled pdf JSON, e.g. "invoice_abc_X_of_X.json" and returns "invoice_abc_X_of_X_parsed.json" with Python logic
+
+## Prequisites
+1. Ensure `config.yml` and `config.env` file is in place with the sample keys below:
+- Please setup your own OpenAI API key accordingly
 ```config.yml
 log_file_path: <log_file_path>
 purpose: invoice
@@ -33,18 +34,15 @@ API_VERSION_GPT4=<PLACEHOLDER>
 DEPLOYMENT_NAME_GPT4=<PLACEHOLDER>
 MAX_COMPLETION_TOKENS=2000
 ```
-4. Based on the `LOCAL_PDF_SOURCE_DIR` and `input_pdf` value specified in the `config.yml`, place the `input_pdf` file in PDF format in `LOCAL_PDF_SOURCE_DIR`.
+2. Based on the `LOCAL_PDF_SOURCE_DIR` and `input_pdf` value specified in the `config.yml`, place the `input_pdf` file in PDF format in `LOCAL_PDF_SOURCE_DIR`.
+3. Ensure `purpose` in `config.yml` is "invoice", this controls which prompt is being read. There is currently only "invoice".
 
-## How to run pipeline
-1. Ensure `purpose` in `config.yml` is "invoice", this controls which prompt is being read. There is currently only "invoice".
-2. Ensure raw pdf files (invoices) are placed in the folder specified in `LOCAL_PDF_SOURCE_DIR` variable of the `config.yml`
-3. Run `invoice_to_json.py`.
-
-## Main Functions to understand the pipeline:
-- `invoice_to_json`: 
-    - Converts invoice in PDF format to json. 
-    - For input pdf named "invoice_abc.pdf", each page will first be converted to an image, which is saved in `LOCAL_IMG_DEST_DIR` folder (specified in `config.yml`). These images will be named "invoice_abc_i_of_X.png" for range(1, X+1) of a X-paged pdf.
-    - A process will then encode each image and return a parsed json using OpenAI LLM. 
-    - All image jsons are compiled into one json file and saved as "invoice_abc_X_of_X.json"
-
-- `parse_pdf_json` takes in a compiled pdf json, e.g. "invoice_abc_X_of_X.json" and returns "invoice_abc_X_of_X_parsed.json" with Python logic
+## Run pipeline
+1. Initialise and activate python venv
+```
+python -m venv venv
+source venv/bin/activate
+```
+2. Navigate to the root of this repository
+3. Download required libraries from `requirements.txt`: `pip install -r requirements.txt`
+4. Run `python invoice_to_json.py`
