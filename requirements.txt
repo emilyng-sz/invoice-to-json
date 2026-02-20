@@ -1,0 +1,8 @@
+openai == 1.109.1
+pillow == 12.1.1
+# pydantic == 2.12.5
+pyyaml == 6.0.3
+PyMuPDF == 1.25.5
+python-dotenv == 1.1.0
+python-dateutil == 2.9.0.post0
+structlog == 25.5.0
